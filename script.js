@@ -91,34 +91,39 @@ const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-btn');
 const message = document.getElementById('nothing-found');
 
-function searchOnSite(items) {
+function createShopItem(shopItem) {
+  const {title, description, img, price, tags} = shopItem;
+  const newItem = template.content.cloneNode(true);
 
-  shopItemsContainer.innerHTML = '';
-
-  if (items.length === 0) {
-    message.textContent = 'Ничего не найдено';
-    message.classList.remove('hidden');
-    return;
-  } else {
-    message.textContent = '';
-    message.innerHTML = '';
-    message.classList.add('hidden');
-  }
-
-  items.forEach(item => {
-    const newItem = template.content.cloneNode(true);
+  newItem.querySelector('img').src = img;
+  newItem.querySelector('h1').textContent = title;
+  newItem.querySelector('p').textContent = description;
+  newItem.querySelector('.price').textContent = `${price} ₽`;
+  
+  const tagsHolder = newItem.querySelector('.tags');
     
-    newItem.querySelector('img').src = item.img;
-    newItem.querySelector('h1').textContent = item.title;
-    newItem.querySelector('p').textContent = item.description;
-    newItem.querySelector('.price').textContent = `${item.price} ₽`;
-  
-    const tagsContainer = newItem.querySelector('.tags');
-    tagsContainer.textContent = item.tags.join(', ');
-  
-    shopItemsContainer.append(newItem);
+  tags.forEach((tag) => {
+    const element = document.createElement("span");
+    element.textContent = tag;
+    element.classList.add("tag");
+    tagsHolder.append(element);
   });
-}
+
+  return newItem;
+};
+
+function renderItems (arr) {
+  message.textContent = '';
+  shopItemsContainer.innerHTML = '';
+  
+  arr.forEach(item => {
+    shopItemsContainer.append(createShopItem(item));
+  });
+
+  if (!arr.length) {
+    message.textContent = 'Ничего не найдено';
+  };
+}; 
 
 searchButton.addEventListener('click', () => {
   const condition = searchInput.value.trim().toLowerCase();
@@ -126,9 +131,9 @@ searchButton.addEventListener('click', () => {
     item.title.toLowerCase().includes(condition)
   );
   
-  searchOnSite(filteredItems);
+  renderItems(filteredItems);
 });
 
-searchOnSite(items);
+renderItems(items);
 
 
